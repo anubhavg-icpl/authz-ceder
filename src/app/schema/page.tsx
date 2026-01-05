@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { cedarClient } from '@/lib/cedar-client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Pencil, RefreshCw, Trash2, Database, Loader2, Sparkles } from 'lucide-react';
 
 export default function SchemaPage() {
     const [schema, setSchema] = useState<unknown>(null);
@@ -19,7 +24,6 @@ export default function SchemaPage() {
             setJsonContent(data ? JSON.stringify(data, null, 2) : '{}');
             setError(null);
         } catch (err) {
-            // Schema might not exist yet
             setSchema(null);
             setJsonContent('{}');
             if (err instanceof Error && !err.message.includes('404')) {
@@ -66,51 +70,14 @@ export default function SchemaPage() {
         const sample = {
             "": {
                 entityTypes: {
-                    User: {
-                        shape: {
-                            type: "Record",
-                            attributes: {
-                                email: { type: "String" },
-                                role: { type: "String" }
-                            }
-                        },
-                        memberOfTypes: ["Role"]
-                    },
-                    Role: {
-                        shape: {
-                            type: "Record",
-                            attributes: {}
-                        }
-                    },
-                    Document: {
-                        shape: {
-                            type: "Record",
-                            attributes: {
-                                title: { type: "String" },
-                                owner: { type: "String" }
-                            }
-                        }
-                    }
+                    User: { shape: { type: "Record", attributes: { email: { type: "String" }, role: { type: "String" } } }, memberOfTypes: ["Role"] },
+                    Role: { shape: { type: "Record", attributes: {} } },
+                    Document: { shape: { type: "Record", attributes: { title: { type: "String" }, owner: { type: "String" } } } }
                 },
                 actions: {
-                    view: {
-                        appliesTo: {
-                            principalTypes: ["User", "Role"],
-                            resourceTypes: ["Document"]
-                        }
-                    },
-                    edit: {
-                        appliesTo: {
-                            principalTypes: ["User", "Role"],
-                            resourceTypes: ["Document"]
-                        }
-                    },
-                    delete: {
-                        appliesTo: {
-                            principalTypes: ["User"],
-                            resourceTypes: ["Document"]
-                        }
-                    }
+                    view: { appliesTo: { principalTypes: ["User", "Role"], resourceTypes: ["Document"] } },
+                    edit: { appliesTo: { principalTypes: ["User", "Role"], resourceTypes: ["Document"] } },
+                    delete: { appliesTo: { principalTypes: ["User"], resourceTypes: ["Document"] } }
                 }
             }
         };
@@ -119,133 +86,118 @@ export default function SchemaPage() {
     }
 
     return (
-        <div>
-            <div className="page-header">
-                <h1>Schema</h1>
-                <p>Define the structure of your entities and actions for type-safe policies</p>
+        <div className="space-y-8">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">Schema</h1>
+                <p className="text-muted-foreground">
+                    Define the structure of your entities and actions for type-safe policies
+                </p>
             </div>
 
-            <div className="actions-bar">
+            <div className="flex gap-3">
                 {editMode ? (
                     <>
-                        <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                            {saving ? 'Saving...' : 'Save Schema'}
-                        </button>
-                        <button className="btn btn-secondary" onClick={() => {
+                        <Button onClick={handleSave} disabled={saving}>
+                            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                            Save Schema
+                        </Button>
+                        <Button variant="outline" onClick={() => {
                             setEditMode(false);
                             setJsonContent(schema ? JSON.stringify(schema, null, 2) : '{}');
                         }}>
                             Cancel
-                        </button>
+                        </Button>
                     </>
                 ) : (
                     <>
-                        <button className="btn btn-primary" onClick={() => setEditMode(true)}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                            </svg>
+                        <Button onClick={() => setEditMode(true)}>
+                            <Pencil className="h-4 w-4" />
                             Edit Schema
-                        </button>
-                        <button className="btn btn-secondary" onClick={loadSchema} disabled={loading}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <polyline points="23,4 23,10 17,10" />
-                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-                            </svg>
+                        </Button>
+                        <Button variant="outline" onClick={loadSchema} disabled={loading}>
+                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                             Refresh
-                        </button>
+                        </Button>
                         {!schema && (
-                            <button className="btn btn-secondary" onClick={addSampleSchema}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-                                </svg>
+                            <Button variant="outline" onClick={addSampleSchema}>
+                                <Sparkles className="h-4 w-4" />
                                 Add Sample Schema
-                            </button>
+                            </Button>
                         )}
                         {schema && (
-                            <button className="btn btn-danger" onClick={handleDelete}>
+                            <Button variant="destructive" onClick={handleDelete}>
+                                <Trash2 className="h-4 w-4" />
                                 Delete Schema
-                            </button>
+                            </Button>
                         )}
                     </>
                 )}
             </div>
 
             {error && (
-                <div style={{
-                    padding: 16,
-                    background: 'var(--danger-bg)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    borderRadius: 'var(--radius-md)',
-                    color: 'var(--danger)',
-                    marginBottom: 24,
-                }}>
+                <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
                     {error}
                 </div>
             )}
 
             {loading ? (
-                <div className="loading">
-                    <span className="spinner" />
-                    Loading schema...
+                <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
             ) : (
-                <div className="card">
-                    <div className="card-header">
-                        <h3 className="card-title">Cedar Schema (JSON)</h3>
-                        <span className={`badge ${schema ? 'badge-success' : 'badge-warning'}`}>
-                            {schema ? 'Defined' : 'Not Set'}
-                        </span>
-                    </div>
-
-                    {editMode ? (
-                        <textarea
-                            className="form-textarea"
-                            value={jsonContent}
-                            onChange={(e) => setJsonContent(e.target.value)}
-                            style={{ minHeight: 500, fontFamily: 'JetBrains Mono, monospace' }}
-                        />
-                    ) : (
-                        <>
-                            {!schema ? (
-                                <div className="empty-state">
-                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                        <ellipse cx="12" cy="5" rx="9" ry="3" />
-                                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-                                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-                                    </svg>
-                                    <h3>No Schema Defined</h3>
-                                    <p>Define a schema to enable type checking for your policies</p>
-                                </div>
-                            ) : (
-                                <pre className="entity-tree">
-                                    {JSON.stringify(schema, null, 2)}
-                                </pre>
-                            )}
-                        </>
-                    )}
-                </div>
+                <Card>
+                    <CardHeader>
+                        <div className="flex items-center justify-between">
+                            <CardTitle>Cedar Schema (JSON)</CardTitle>
+                            <Badge variant={schema ? "success" : "secondary"}>
+                                {schema ? 'Defined' : 'Not Set'}
+                            </Badge>
+                        </div>
+                        <CardDescription>
+                            The schema defines entity types, their attributes, and valid actions
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {editMode ? (
+                            <Textarea
+                                value={jsonContent}
+                                onChange={(e) => setJsonContent(e.target.value)}
+                                className="min-h-[400px] font-mono text-sm"
+                            />
+                        ) : !schema ? (
+                            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                                <Database className="h-12 w-12 opacity-50" />
+                                <h3 className="mt-4 font-medium">No Schema Defined</h3>
+                                <p className="text-sm">Define a schema to enable type checking for your policies</p>
+                            </div>
+                        ) : (
+                            <pre className="max-h-[400px] overflow-auto rounded-lg bg-muted p-4 font-mono text-sm">
+                                {JSON.stringify(schema, null, 2)}
+                            </pre>
+                        )}
+                    </CardContent>
+                </Card>
             )}
 
-            <div className="card" style={{ marginTop: 24 }}>
-                <div className="card-header">
-                    <h3 className="card-title">About Cedar Schema</h3>
-                </div>
-                <div style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                    <p style={{ marginBottom: 12 }}>
+            <Card>
+                <CardHeader>
+                    <CardTitle>About Cedar Schema</CardTitle>
+                </CardHeader>
+                <CardContent className="text-muted-foreground space-y-2">
+                    <p>
                         The Cedar schema defines the structure of your entity types and actions.
                         It enables type checking for your policies, helping catch errors before deployment.
                     </p>
-                    <p style={{ marginBottom: 12 }}>
-                        <strong>Entity Types:</strong> Define what attributes each entity type has and
+                    <p>
+                        <strong className="text-foreground">Entity Types:</strong> Define what attributes each entity type has and
                         what other entity types it can be a member of.
                     </p>
                     <p>
-                        <strong>Actions:</strong> Define which principal types can perform each action
+                        <strong className="text-foreground">Actions:</strong> Define which principal types can perform each action
                         on which resource types.
                     </p>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

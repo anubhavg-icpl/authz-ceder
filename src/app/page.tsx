@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { cedarClient, type Policy } from '@/lib/cedar-client';
+import { cedarClient } from '@/lib/cedar-client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Shield, FileText, Users, ArrowRight, CheckCircle, Database, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function HomePage() {
   const [stats, setStats] = useState({
@@ -36,159 +41,113 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div>
-      <div className="page-header">
-        <h1>Dashboard</h1>
-        <p>Overview of your Cedar authorization configuration</p>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">
+          Overview of your Cedar authorization configuration
+        </p>
       </div>
 
-      <div className="grid-3">
-        <div className="stat-card">
-          <div className="stat-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </div>
-          <div className="stat-content">
-            <h4>Cedar Agent</h4>
+      {/* Stats Grid */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Cedar Agent</CardTitle>
+            <Shield className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
             {loading ? (
-              <div className="spinner" style={{ width: 20, height: 20 }} />
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             ) : (
-              <span className={`badge ${stats.healthy ? 'badge-success' : 'badge-danger'}`}>
+              <Badge variant={stats.healthy ? "success" : "destructive"}>
                 {stats.healthy ? 'Connected' : 'Disconnected'}
-              </span>
+              </Badge>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        <div className="stat-card">
-          <div className="stat-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14,2 14,8 20,8" />
-            </svg>
-          </div>
-          <div className="stat-content">
-            <h4>Policies</h4>
-            <div className="stat-value">{loading ? '–' : stats.policies}</div>
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Policies</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loading ? '–' : stats.policies}
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="stat-card">
-          <div className="stat-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-          </div>
-          <div className="stat-content">
-            <h4>Entities</h4>
-            <div className="stat-value">{loading ? '–' : stats.entities}</div>
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Entities</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loading ? '–' : stats.entities}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <div style={{ marginTop: 32 }}>
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">Quick Start</h3>
-          </div>
-          <div style={{ display: 'grid', gap: 16 }}>
-            <QuickAction
-              title="Test Authorization"
-              description="Check if a principal is allowed to perform an action on a resource"
-              href="/authorize"
-              icon={
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  <polyline points="9,12 12,15 16,10" />
-                </svg>
-              }
-            />
-            <QuickAction
-              title="Manage Policies"
-              description="Create, edit, or delete Cedar policies that define your authorization rules"
-              href="/policies"
-              icon={
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14,2 14,8 20,8" />
-                </svg>
-              }
-            />
-            <QuickAction
-              title="View Entities"
-              description="Browse and update the entities (users, resources) in your authorization model"
-              href="/entities"
-              icon={
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                </svg>
-              }
-            />
-          </div>
-        </div>
-      </div>
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Start</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <QuickAction
+            title="Test Authorization"
+            description="Check if a principal is allowed to perform an action on a resource"
+            href="/authorize"
+            icon={CheckCircle}
+          />
+          <QuickAction
+            title="Manage Policies"
+            description="Create, edit, or delete Cedar policies that define your authorization rules"
+            href="/policies"
+            icon={FileText}
+          />
+          <QuickAction
+            title="View Entities"
+            description="Browse and update the entities (users, resources) in your authorization model"
+            href="/entities"
+            icon={Users}
+          />
+          <QuickAction
+            title="Configure Schema"
+            description="Define entity types and actions for type-safe policy validation"
+            href="/schema"
+            icon={Database}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-function QuickAction({ title, description, href, icon }: {
+function QuickAction({ title, description, href, icon: Icon }: {
   title: string;
   description: string;
   href: string;
-  icon: React.ReactNode;
+  icon: React.ComponentType<{ className?: string }>;
 }) {
   return (
-    <a
+    <Link
       href={href}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 16,
-        padding: 16,
-        background: 'var(--bg-tertiary)',
-        borderRadius: 'var(--radius-md)',
-        textDecoration: 'none',
-        transition: 'all var(--transition-fast)',
-        border: '1px solid var(--border-color)',
-      }}
-      onMouseOver={(e) => {
-        e.currentTarget.style.borderColor = 'var(--accent-primary)';
-        e.currentTarget.style.transform = 'translateX(4px)';
-      }}
-      onMouseOut={(e) => {
-        e.currentTarget.style.borderColor = 'var(--border-color)';
-        e.currentTarget.style.transform = 'translateX(0)';
-      }}
+      className="flex items-center gap-4 rounded-lg border border-border p-4 transition-colors hover:bg-accent"
     >
-      <div style={{
-        width: 40,
-        height: 40,
-        borderRadius: 'var(--radius-md)',
-        background: 'var(--accent-gradient)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'white',
-        flexShrink: 0,
-      }}>
-        {icon}
+      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <Icon className="h-5 w-5" />
       </div>
-      <div>
-        <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>
-          {title}
-        </div>
-        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          {description}
-        </div>
+      <div className="flex-1">
+        <div className="font-semibold">{title}</div>
+        <div className="text-sm text-muted-foreground">{description}</div>
       </div>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" style={{ marginLeft: 'auto' }}>
-        <polyline points="9,18 15,12 9,6" />
-      </svg>
-    </a>
+      <ArrowRight className="h-5 w-5 text-muted-foreground" />
+    </Link>
   );
 }

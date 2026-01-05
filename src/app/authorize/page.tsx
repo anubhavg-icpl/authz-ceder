@@ -2,6 +2,13 @@
 
 import { useState } from 'react';
 import { cedarClient, type AuthorizationResponse } from '@/lib/cedar-client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Shield, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 export default function AuthorizePage() {
     const [principal, setPrincipal] = useState('User::"alice"');
@@ -44,188 +51,155 @@ export default function AuthorizePage() {
     }
 
     return (
-        <div>
-            <div className="page-header">
-                <h1>Test Authorization</h1>
-                <p>Check if a principal is allowed to perform an action on a resource</p>
+        <div className="space-y-8">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">Test Authorization</h1>
+                <p className="text-muted-foreground">
+                    Check if a principal is allowed to perform an action on a resource
+                </p>
             </div>
 
-            <div className="grid-2" style={{ alignItems: 'start' }}>
-                <div className="card">
-                    <div className="card-header">
-                        <h3 className="card-title">Authorization Request</h3>
-                    </div>
-
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group">
-                            <label className="form-label">Principal</label>
-                            <input
-                                type="text"
-                                className="form-input"
-                                value={principal}
-                                onChange={(e) => setPrincipal(e.target.value)}
-                                placeholder='User::"alice"'
-                            />
-                            <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 4, display: 'block' }}>
-                                Format: Type::"id" (e.g., User::"alice", Role::"admin")
-                            </small>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Action</label>
-                            <input
-                                type="text"
-                                className="form-input"
-                                value={action}
-                                onChange={(e) => setAction(e.target.value)}
-                                placeholder='Action::"view"'
-                            />
-                            <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 4, display: 'block' }}>
-                                Format: Action::"name" (e.g., Action::"view", Action::"edit")
-                            </small>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Resource</label>
-                            <input
-                                type="text"
-                                className="form-input"
-                                value={resource}
-                                onChange={(e) => setResource(e.target.value)}
-                                placeholder='Document::"doc1"'
-                            />
-                            <small style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: 4, display: 'block' }}>
-                                Format: Type::"id" (e.g., Document::"doc1", File::"readme.md")
-                            </small>
-                        </div>
-
-                        <div className="form-group">
-                            <label className="form-label">Context (JSON)</label>
-                            <textarea
-                                className="form-textarea"
-                                value={context}
-                                onChange={(e) => setContext(e.target.value)}
-                                placeholder="{}"
-                                style={{ minHeight: 100 }}
-                            />
-                        </div>
-
-                        <button
-                            type="submit"
-                            className="btn btn-primary"
-                            disabled={loading}
-                            style={{ width: '100%' }}
-                        >
-                            {loading ? (
-                                <>
-                                    <span className="spinner" style={{ width: 16, height: 16 }} />
-                                    Checking...
-                                </>
-                            ) : (
-                                <>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                    </svg>
-                                    Check Authorization
-                                </>
-                            )}
-                        </button>
-                    </form>
-                </div>
-
-                <div className="card">
-                    <div className="card-header">
-                        <h3 className="card-title">Result</h3>
-                    </div>
-
-                    {error && (
-                        <div style={{
-                            padding: 16,
-                            background: 'var(--danger-bg)',
-                            border: '1px solid rgba(239, 68, 68, 0.3)',
-                            borderRadius: 'var(--radius-md)',
-                            color: 'var(--danger)',
-                        }}>
-                            <strong>Error:</strong> {error}
-                        </div>
-                    )}
-
-                    {result && (
-                        <>
-                            <div className={`decision-card ${result.decision === 'Allow' ? 'decision-allow' : 'decision-deny'}`}>
-                                <div className="decision-icon">
-                                    {result.decision === 'Allow' ? (
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <polyline points="20,6 9,17 4,12" />
-                                        </svg>
-                                    ) : (
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <line x1="18" y1="6" x2="6" y2="18" />
-                                            <line x1="6" y1="6" x2="18" y2="18" />
-                                        </svg>
-                                    )}
-                                </div>
-                                <div className="decision-text">{result.decision}</div>
+            <div className="grid gap-6 lg:grid-cols-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Authorization Request</CardTitle>
+                        <CardDescription>Enter the details for your authorization check</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="principal">Principal</Label>
+                                <Input
+                                    id="principal"
+                                    value={principal}
+                                    onChange={(e) => setPrincipal(e.target.value)}
+                                    placeholder='User::"alice"'
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Format: Type::"id" (e.g., User::"alice")
+                                </p>
                             </div>
 
-                            {result.diagnostics.reason.length > 0 && (
-                                <div style={{ marginTop: 16 }}>
-                                    <h4 style={{ fontSize: '0.9rem', marginBottom: 8, color: 'var(--text-secondary)' }}>
-                                        Policies Applied:
-                                    </h4>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                        {result.diagnostics.reason.map((policyId, i) => (
-                                            <span
-                                                key={i}
-                                                style={{
-                                                    padding: '4px 12px',
-                                                    background: 'var(--bg-tertiary)',
-                                                    borderRadius: 'var(--radius-sm)',
-                                                    fontFamily: 'monospace',
-                                                    fontSize: '0.85rem',
-                                                }}
-                                            >
-                                                {policyId}
-                                            </span>
+                            <div className="space-y-2">
+                                <Label htmlFor="action">Action</Label>
+                                <Input
+                                    id="action"
+                                    value={action}
+                                    onChange={(e) => setAction(e.target.value)}
+                                    placeholder='Action::"view"'
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Format: Action::"name" (e.g., Action::"view")
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="resource">Resource</Label>
+                                <Input
+                                    id="resource"
+                                    value={resource}
+                                    onChange={(e) => setResource(e.target.value)}
+                                    placeholder='Document::"doc1"'
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Format: Type::"id" (e.g., Document::"doc1")
+                                </p>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="context">Context (JSON)</Label>
+                                <Textarea
+                                    id="context"
+                                    value={context}
+                                    onChange={(e) => setContext(e.target.value)}
+                                    placeholder="{}"
+                                    className="min-h-[100px]"
+                                />
+                            </div>
+
+                            <Button type="submit" className="w-full" disabled={loading}>
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Checking...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Shield className="h-4 w-4" />
+                                        Check Authorization
+                                    </>
+                                )}
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Result</CardTitle>
+                        <CardDescription>Authorization decision and diagnostics</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {error && (
+                            <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
+                                <strong>Error:</strong> {error}
+                            </div>
+                        )}
+
+                        {result && (
+                            <div className="space-y-4">
+                                <div className={`flex flex-col items-center justify-center rounded-xl p-8 ${result.decision === 'Allow'
+                                        ? 'border-2 border-green-500 bg-green-500/10'
+                                        : 'border-2 border-destructive bg-destructive/10'
+                                    }`}>
+                                    {result.decision === 'Allow' ? (
+                                        <CheckCircle className="h-16 w-16 text-green-500" />
+                                    ) : (
+                                        <XCircle className="h-16 w-16 text-destructive" />
+                                    )}
+                                    <span className={`mt-4 text-2xl font-bold ${result.decision === 'Allow' ? 'text-green-500' : 'text-destructive'
+                                        }`}>
+                                        {result.decision}
+                                    </span>
+                                </div>
+
+                                {result.diagnostics.reason.length > 0 && (
+                                    <div>
+                                        <h4 className="mb-2 text-sm font-medium text-muted-foreground">
+                                            Policies Applied:
+                                        </h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {result.diagnostics.reason.map((policyId, i) => (
+                                                <Badge key={i} variant="secondary" className="font-mono">
+                                                    {policyId}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {result.diagnostics.errors.length > 0 && (
+                                    <div>
+                                        <h4 className="mb-2 text-sm font-medium text-destructive">Errors:</h4>
+                                        {result.diagnostics.errors.map((err, i) => (
+                                            <div key={i} className="rounded-lg bg-destructive/10 p-3 text-sm">
+                                                {err}
+                                            </div>
                                         ))}
                                     </div>
-                                </div>
-                            )}
+                                )}
+                            </div>
+                        )}
 
-                            {result.diagnostics.errors.length > 0 && (
-                                <div style={{ marginTop: 16 }}>
-                                    <h4 style={{ fontSize: '0.9rem', marginBottom: 8, color: 'var(--danger)' }}>
-                                        Errors:
-                                    </h4>
-                                    {result.diagnostics.errors.map((err, i) => (
-                                        <div
-                                            key={i}
-                                            style={{
-                                                padding: 12,
-                                                background: 'var(--danger-bg)',
-                                                borderRadius: 'var(--radius-sm)',
-                                                fontSize: '0.85rem',
-                                                marginBottom: 8,
-                                            }}
-                                        >
-                                            {err}
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </>
-                    )}
-
-                    {!result && !error && (
-                        <div className="empty-state">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                            </svg>
-                            <h3>No Result Yet</h3>
-                            <p>Fill in the form and click "Check Authorization" to test</p>
-                        </div>
-                    )}
-                </div>
+                        {!result && !error && (
+                            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                                <Shield className="h-12 w-12 opacity-50" />
+                                <h3 className="mt-4 font-medium">No Result Yet</h3>
+                                <p className="text-sm">Fill in the form and click "Check Authorization"</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );

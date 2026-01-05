@@ -13,19 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body suppressHydrationWarning>
-        <div className="app-container">
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className="min-h-screen bg-background antialiased" suppressHydrationWarning>
+        <div className="flex min-h-screen">
           <Sidebar />
-          <main className="main-content">
+          <main className="flex-1 ml-64 p-8">
             {children}
           </main>
         </div>

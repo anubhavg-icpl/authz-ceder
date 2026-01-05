@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { cedarClient, type Policy } from '@/lib/cedar-client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Plus, RefreshCw, Pencil, Trash2, FileText, Loader2 } from 'lucide-react';
 
 export default function PoliciesPage() {
     const [policies, setPolicies] = useState<Policy[]>([]);
@@ -80,133 +87,131 @@ export default function PoliciesPage() {
     }
 
     return (
-        <div>
-            <div className="page-header">
-                <h1>Policies</h1>
-                <p>Manage Cedar policies that define your authorization rules</p>
+        <div className="space-y-8">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight">Policies</h1>
+                <p className="text-muted-foreground">
+                    Manage Cedar policies that define your authorization rules
+                </p>
             </div>
 
-            <div className="actions-bar">
-                <button className="btn btn-primary" onClick={openCreateForm}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
+            <div className="flex gap-3">
+                <Button onClick={openCreateForm}>
+                    <Plus className="h-4 w-4" />
                     Create Policy
-                </button>
-                <button className="btn btn-secondary" onClick={loadPolicies} disabled={loading}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="23,4 23,10 17,10" />
-                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-                    </svg>
+                </Button>
+                <Button variant="outline" onClick={loadPolicies} disabled={loading}>
+                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                     Refresh
-                </button>
+                </Button>
             </div>
 
             {error && (
-                <div style={{
-                    padding: 16,
-                    background: 'var(--danger-bg)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    borderRadius: 'var(--radius-md)',
-                    color: 'var(--danger)',
-                    marginBottom: 24,
-                }}>
+                <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
                     {error}
                 </div>
             )}
 
             {showForm && (
-                <div className="card" style={{ marginBottom: 24 }}>
-                    <div className="card-header">
-                        <h3 className="card-title">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>
                             {editingPolicy ? `Edit Policy: ${editingPolicy.id}` : 'Create New Policy'}
-                        </h3>
-                        <button className="btn btn-secondary btn-sm" onClick={() => setShowForm(false)}>
-                            Cancel
-                        </button>
-                    </div>
+                        </CardTitle>
+                        <CardDescription>
+                            Write your Cedar policy using the Cedar policy language
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            {!editingPolicy && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="policyId">Policy ID</Label>
+                                    <Input
+                                        id="policyId"
+                                        value={formId}
+                                        onChange={(e) => setFormId(e.target.value)}
+                                        placeholder="my-policy"
+                                        required
+                                    />
+                                </div>
+                            )}
 
-                    <form onSubmit={handleSubmit}>
-                        {!editingPolicy && (
-                            <div className="form-group">
-                                <label className="form-label">Policy ID</label>
-                                <input
-                                    type="text"
-                                    className="form-input"
-                                    value={formId}
-                                    onChange={(e) => setFormId(e.target.value)}
-                                    placeholder="my-policy"
+                            <div className="space-y-2">
+                                <Label htmlFor="policyContent">Policy Content (Cedar)</Label>
+                                <Textarea
+                                    id="policyContent"
+                                    value={formContent}
+                                    onChange={(e) => setFormContent(e.target.value)}
+                                    placeholder="permit (principal, action, resource);"
+                                    className="min-h-[250px] font-mono text-sm"
                                     required
                                 />
                             </div>
-                        )}
 
-                        <div className="form-group">
-                            <label className="form-label">Policy Content (Cedar)</label>
-                            <textarea
-                                className="form-textarea"
-                                value={formContent}
-                                onChange={(e) => setFormContent(e.target.value)}
-                                placeholder="permit (principal, action, resource);"
-                                style={{ minHeight: 250 }}
-                                required
-                            />
-                        </div>
-
-                        <div style={{ display: 'flex', gap: 12 }}>
-                            <button type="submit" className="btn btn-primary" disabled={saving}>
-                                {saving ? 'Saving...' : editingPolicy ? 'Update Policy' : 'Create Policy'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                            <div className="flex gap-3">
+                                <Button type="submit" disabled={saving}>
+                                    {saving ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        editingPolicy ? 'Update Policy' : 'Create Policy'
+                                    )}
+                                </Button>
+                                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+                                    Cancel
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             )}
 
             {loading ? (
-                <div className="loading">
-                    <span className="spinner" />
-                    Loading policies...
+                <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
             ) : policies.length === 0 ? (
-                <div className="card">
-                    <div className="empty-state">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14,2 14,8 20,8" />
-                        </svg>
-                        <h3>No Policies</h3>
-                        <p>Create your first Cedar policy to define authorization rules</p>
-                        <button className="btn btn-primary" onClick={openCreateForm} style={{ marginTop: 16 }}>
+                <Card>
+                    <CardContent className="flex flex-col items-center justify-center py-12">
+                        <FileText className="h-12 w-12 text-muted-foreground opacity-50" />
+                        <h3 className="mt-4 font-medium">No Policies</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Create your first Cedar policy to define authorization rules
+                        </p>
+                        <Button className="mt-4" onClick={openCreateForm}>
+                            <Plus className="h-4 w-4" />
                             Create Policy
-                        </button>
-                    </div>
-                </div>
+                        </Button>
+                    </CardContent>
+                </Card>
             ) : (
-                <div className="policy-grid">
+                <div className="grid gap-4">
                     {policies.map((policy) => (
-                        <div key={policy.id} className="policy-item">
-                            <div className="policy-header">
-                                <span className="policy-id">{policy.id}</span>
-                                <div style={{ display: 'flex', gap: 8 }}>
-                                    <button
-                                        className="btn btn-secondary btn-sm"
-                                        onClick={() => openEditForm(policy)}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        className="btn btn-danger btn-sm"
-                                        onClick={() => handleDelete(policy.id)}
-                                    >
-                                        Delete
-                                    </button>
+                        <Card key={policy.id}>
+                            <CardHeader className="pb-3">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="font-mono text-primary">{policy.id}</CardTitle>
+                                    <div className="flex gap-2">
+                                        <Button variant="outline" size="sm" onClick={() => openEditForm(policy)}>
+                                            <Pencil className="h-4 w-4" />
+                                            Edit
+                                        </Button>
+                                        <Button variant="destructive" size="sm" onClick={() => handleDelete(policy.id)}>
+                                            <Trash2 className="h-4 w-4" />
+                                            Delete
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="policy-content">
-                                {policy.content}
-                            </div>
-                        </div>
+                            </CardHeader>
+                            <CardContent>
+                                <pre className="max-h-[120px] overflow-hidden rounded-lg bg-muted p-4 font-mono text-sm">
+                                    {policy.content}
+                                </pre>
+                            </CardContent>
+                        </Card>
                     ))}
                 </div>
             )}
