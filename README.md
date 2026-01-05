@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cedar Authorization Dashboard
 
-## Getting Started
+A Next.js dashboard for managing Cedar policies, entities, and authorization with [cedar-agent](https://github.com/permitio/cedar-agent).
 
-First, run the development server:
+## Quick Start
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. **Start cedar-agent:**
+   ```bash
+   podman run -p 8180:8180 permitio/cedar-agent
+   # or with Docker:
+   docker run -p 8180:8180 permitio/cedar-agent
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   pnpm install
+   ```
+
+3. **Configure environment (optional):**
+   ```bash
+   cp env.example .env.local
+   # Edit .env.local if needed
+   ```
+
+4. **Run the dashboard:**
+   ```bash
+   pnpm dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000)
+
+## Environment Variables
+
+Create a `.env.local` file in the project root:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CEDAR_AGENT_URL` | URL of the cedar-agent server | `http://localhost:8180` |
+
+Example `.env.local`:
+```env
+CEDAR_AGENT_URL=http://localhost:8180
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Policies** - Create, edit, delete Cedar policies with syntax highlighting
+- **Entities** - Manage users, roles, resources as JSON data
+- **Authorization Testing** - Check if principal can perform action on resource
+- **Schema** - Define entity types for type-safe policies
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Tech Stack
 
-## Learn More
+- Next.js 16 with App Router
+- TypeScript
+- Cedar policy language via cedar-agent
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/
+│   ├── api/           # API routes (proxy to cedar-agent)
+│   ├── authorize/     # Authorization testing page
+│   ├── entities/      # Entities management page
+│   ├── policies/      # Policies management page
+│   ├── schema/        # Schema management page
+│   └── page.tsx       # Dashboard home
+├── components/        # Reusable UI components
+└── lib/
+    ├── cedar-client.ts  # API client
+    └── env.ts           # Environment configuration
+```
