@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Shield, Home, FileText, Users, Database, CheckCircle } from 'lucide-react';
+import { Shield, Home, FileText, Users, Database, CheckCircle, BookOpen } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const navigation = [
@@ -11,6 +11,7 @@ const navigation = [
         title: 'Dashboard',
         items: [
             { name: 'Overview', href: '/', icon: Home },
+            { name: 'Scenarios', href: '/scenarios', icon: BookOpen },
         ],
     },
     {
