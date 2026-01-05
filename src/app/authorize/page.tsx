@@ -76,7 +76,7 @@ export default function AuthorizePage() {
                                     placeholder='User::"alice"'
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    Format: Type::"id" (e.g., User::"alice")
+                                    Format: Type::&quot;id&quot; (e.g., User::&quot;alice&quot;)
                                 </p>
                             </div>
 
@@ -89,7 +89,7 @@ export default function AuthorizePage() {
                                     placeholder='Action::"view"'
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    Format: Action::"name" (e.g., Action::"view")
+                                    Format: Action::&quot;name&quot; (e.g., Action::&quot;view&quot;)
                                 </p>
                             </div>
 
@@ -102,7 +102,7 @@ export default function AuthorizePage() {
                                     placeholder='Document::"doc1"'
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    Format: Type::"id" (e.g., Document::"doc1")
+                                    Format: Type::&quot;id&quot; (e.g., Document::&quot;doc1&quot;)
                                 </p>
                             </div>
 
@@ -149,8 +149,8 @@ export default function AuthorizePage() {
                         {result && (
                             <div className="space-y-4">
                                 <div className={`flex flex-col items-center justify-center rounded-xl p-8 ${result.decision === 'Allow'
-                                        ? 'border-2 border-green-500 bg-green-500/10'
-                                        : 'border-2 border-destructive bg-destructive/10'
+                                    ? 'border-2 border-green-500 bg-green-500/10'
+                                    : 'border-2 border-destructive bg-destructive/10'
                                     }`}>
                                     {result.decision === 'Allow' ? (
                                         <CheckCircle className="h-16 w-16 text-green-500" />
@@ -195,7 +195,7 @@ export default function AuthorizePage() {
                             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                                 <Shield className="h-12 w-12 opacity-50" />
                                 <h3 className="mt-4 font-medium">No Result Yet</h3>
-                                <p className="text-sm">Fill in the form and click "Check Authorization"</p>
+                                <p className="text-sm">Fill in the form and click &quot;Check Authorization&quot;</p>
                             </div>
                         )}
                     </CardContent>
