@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { cedarClient, type AuthorizationResponse } from '@/lib/cedar-client';
+import { useState, useEffect } from 'react';
+import { cedarClient, type AuthorizationResponse, type Entity } from '@/lib/cedar-client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,13 +11,26 @@ import { Badge } from '@/components/ui/badge';
 import { Shield, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 export default function AuthorizePage() {
-    const [principal, setPrincipal] = useState('User::"alice"');
-    const [action, setAction] = useState('Action::"view"');
-    const [resource, setResource] = useState('Document::"doc1"');
+    const [principal, setPrincipal] = useState('');
+    const [action, setAction] = useState('');
+    const [resource, setResource] = useState('');
     const [context, setContext] = useState('{}');
     const [result, setResult] = useState<AuthorizationResponse | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [entities, setEntities] = useState<Entity[]>([]);
+
+    // Fetch entities on mount to show available options
+    useEffect(() => {
+        cedarClient.getEntities().then(setEntities).catch(console.error);
+    }, []);
+
+    // Helper to format entity UID
+    const formatEntityUid = (entity: Entity) => `${entity.uid.type}::"${entity.uid.id}"`;
+
+    // Get unique entity types for suggestions
+    const principals = entities.filter(e => e.uid.type === 'User' || e.uid.type === 'Role');
+    const resources = entities.filter(e => e.uid.type !== 'User' && e.uid.type !== 'Role');
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -75,6 +88,20 @@ export default function AuthorizePage() {
                                     onChange={(e) => setPrincipal(e.target.value)}
                                     placeholder='User::"alice"'
                                 />
+                                {principals.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {principals.map((e) => (
+                                            <Badge
+                                                key={formatEntityUid(e)}
+                                                variant="outline"
+                                                className="cursor-pointer hover:bg-primary hover:text-primary-foreground text-xs"
+                                                onClick={() => setPrincipal(formatEntityUid(e))}
+                                            >
+                                                {formatEntityUid(e)}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
                                 <p className="text-xs text-muted-foreground">
                                     Format: Type::&quot;id&quot; (e.g., User::&quot;alice&quot;)
                                 </p>
@@ -89,7 +116,7 @@ export default function AuthorizePage() {
                                     placeholder='Action::"view"'
                                 />
                                 <p className="text-xs text-muted-foreground">
-                                    Format: Action::&quot;name&quot; (e.g., Action::&quot;view&quot;)
+                                    Format: Action::&quot;name&quot; (e.g., Action::&quot;view&quot;, Action::&quot;edit&quot;, Action::&quot;delete&quot;)
                                 </p>
                             </div>
 
@@ -101,6 +128,20 @@ export default function AuthorizePage() {
                                     onChange={(e) => setResource(e.target.value)}
                                     placeholder='Document::"doc1"'
                                 />
+                                {resources.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                        {resources.map((e) => (
+                                            <Badge
+                                                key={formatEntityUid(e)}
+                                                variant="outline"
+                                                className="cursor-pointer hover:bg-primary hover:text-primary-foreground text-xs"
+                                                onClick={() => setResource(formatEntityUid(e))}
+                                            >
+                                                {formatEntityUid(e)}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
                                 <p className="text-xs text-muted-foreground">
                                     Format: Type::&quot;id&quot; (e.g., Document::&quot;doc1&quot;)
                                 </p>

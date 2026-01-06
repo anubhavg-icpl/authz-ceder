@@ -53,49 +53,55 @@ export const SCENARIOS: Scenario[] = [
         entities: [
             {
                 uid: { type: "Role", id: "viewer" },
+                attrs: {},
                 parents: []
             },
             {
                 uid: { type: "Role", id: "editor" },
+                attrs: {},
                 parents: [{ type: "Role", id: "viewer" }]
             },
             {
                 uid: { type: "Role", id: "admin" },
+                attrs: {},
                 parents: [{ type: "Role", id: "editor" }]
             },
             {
                 uid: { type: "User", id: "alice" },
+                attrs: {},
                 parents: [{ type: "Role", id: "admin" }]
             },
             {
                 uid: { type: "User", id: "bob" },
+                attrs: {},
                 parents: [{ type: "Role", id: "viewer" }]
             },
             {
                 uid: { type: "Document", id: "doc1" },
+                attrs: {},
                 parents: []
             }
         ],
         policies: [
             {
-                id: "role-permissions",
-                content: `
-// Viewers can view documents
-permit(
+                id: "viewer-policy",
+                content: `permit(
     principal in Role::"viewer",
     action == Action::"view",
     resource
-);
-
-// Editors can also edit documents (inherits view from viewer)
-permit(
+);`
+            },
+            {
+                id: "editor-policy",
+                content: `permit(
     principal in Role::"editor",
     action == Action::"edit",
     resource
-);
-
-// Admins can do everything (inherits edit from editor)
-permit(
+);`
+            },
+            {
+                id: "admin-policy",
+                content: `permit(
     principal in Role::"admin",
     action,
     resource
@@ -143,6 +149,7 @@ permit(
         entities: [
             {
                 uid: { type: "User", id: "alice" },
+                parents: [],
                 attrs: {
                     department: "engineering",
                     clearance_level: 3
@@ -150,6 +157,7 @@ permit(
             },
             {
                 uid: { type: "User", id: "bob" },
+                parents: [],
                 attrs: {
                     department: "sales",
                     clearance_level: 1
@@ -157,6 +165,7 @@ permit(
             },
             {
                 uid: { type: "Document", id: "design_doc" },
+                parents: [],
                 attrs: {
                     owner: { type: "User", id: "alice" },
                     classification_level: 2,
@@ -167,9 +176,7 @@ permit(
         policies: [
             {
                 id: "department-match",
-                content: `
-// Users can only read documents in their own department
-permit(
+                content: `permit(
     principal,
     action == Action::"read",
     resource
@@ -180,9 +187,7 @@ when {
             },
             {
                 id: "clearance-level",
-                content: `
-// Users must have sufficient clearance
-permit(
+                content: `permit(
     principal,
     action == Action::"read",
     resource
@@ -228,27 +233,29 @@ when {
         entities: [
             {
                 uid: { type: "User", id: "owner" },
+                attrs: {},
                 parents: []
             },
             {
                 uid: { type: "User", id: "collaborator" },
+                attrs: {},
                 parents: []
             },
             {
                 uid: { type: "User", id: "stranger" },
+                attrs: {},
                 parents: []
             },
             {
                 uid: { type: "Document", id: "shared_doc" },
+                attrs: {},
                 parents: []
             }
         ],
         policies: [
             {
                 id: "owner-full-access",
-                content: `
-// Owner has full access to their specific document
-permit(
+                content: `permit(
     principal == User::"owner",
     action,
     resource == Document::"shared_doc"
@@ -256,9 +263,7 @@ permit(
             },
             {
                 id: "collaborator-access",
-                content: `
-// Collaborator can view and edit the specific document
-permit(
+                content: `permit(
     principal == User::"collaborator",
     action in [Action::"view", Action::"edit"],
     resource == Document::"shared_doc"

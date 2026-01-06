@@ -28,7 +28,14 @@ export default function ScenariosPage() {
             // 1. Delete everything
             // Clean slate:
             const existingPolicies = await cedarClient.getPolicies();
-            await Promise.all(existingPolicies.map(p => cedarClient.deletePolicy(p.id)));
+            await Promise.all(existingPolicies.map(async (p) => {
+                try {
+                    await cedarClient.deletePolicy(p.id);
+                } catch (e) {
+                    // Ignore 404s if policy is already gone
+                    console.warn(`Failed to delete policy ${p.id}:`, e);
+                }
+            }));
 
             await cedarClient.deleteEntities();
             await cedarClient.deleteSchema();
